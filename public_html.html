@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capacitive Touch Circle</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        #circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #4caf50;
+            transition: width 0.2s, height 0.2s; /* Smooth transition */
+        }
+    </style>
+</head>
+<body>
+    <!-- The circle element -->
+    <div id="circle"></div>
+
+    <script>
+        // Initialize Socket.IO to listen for capacitive touch data
+        const socket = io(); // Assuming the server is using Socket.IO
+        
+        // Reference to the circle element
+        const circle = document.getElementById('circle');
+        
+        // Socket event listener for incoming capacitive touch data
+        socket.on('sensor-data', (data) => {
+            // Assuming the data sent from the server is just a number between 0 and 1023
+            let touchValue = data.capacitiveTouch; // Ensure the value is being sent as 'capacitiveTouch'
+
+            // Normalize the capacitive touch value to a size for the circle
+            // We'll make the circle's diameter range from 50px to 500px (based on touch value)
+            let size = Math.min(Math.max(touchValue, 0), 1023);  // Ensure it's within bounds of 0 to 1023
+            let circleSize = (size / 1023) * 450 + 50; // Map the size to 50px to 500px
+
+            // Apply the calculated size to the circle
+            circle.style.width = `${circleSize}px`;
+            circle.style.height = `${circleSize}px`;
+        });
+
+        // If there's no data, or we need to handle a disconnection
+        socket.on('disconnect', () => {
+            circle.style.width = '100px';  // Default size when disconnected
+            circle.style.height = '100px';
+        });
+    </script>
+</body>
+</html>
+
